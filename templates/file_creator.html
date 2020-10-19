@@ -1,0 +1,17 @@
+<!doctype html>
+<head>
+  <title>Hello from Flask</title>
+</head>
+<body>
+  <h1>Hello, World!</h1>
+
+  <form method="POST" action={{url_for('create_file')}}>
+    <label for="filename">file name</label>
+    <input type="text" name="filename" id="filename"/> <br>
+    <label for="filetext">password</label>
+    <textarea name="filetext" id="filetext" cols="30" rows="10">Le texte de votre fichier</textarea>
+
+    <button type="submit">valider</button>
+  
+  </form>
+</body>
