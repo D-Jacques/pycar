@@ -20,6 +20,17 @@ def index():
     else:
         return redirect(url_for('connection'))
 
+        @app.route('/logout')
+
+@login_required
+def logout():
+    logout_user()
+    if session.get('was_once_logged_in'):
+        # prevent flashing automatically logged out message
+        del session['was_once_logged_in']
+    flash('Vous vous êtes bien deconnecter')
+    return redirect('/connection')
+
 @app.errorhandler(404)
 def page_not_found():
     return render_template('')
