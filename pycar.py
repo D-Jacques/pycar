@@ -99,12 +99,15 @@ def register():
 
     return render_template('register.html')
 
-@app.route('/disconnect')
-def disconnect():
-    if 'username' in session:
-        #Remove the username cell from the session's array
-        session.pop('username', None)
-        return redirect(url_for('connection'))
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    #This loop verify if an user was logged, if it's true it deletes the session
+    if session.get('was_once_logged_in'):
+        del session['was_once_logged_in']
+    flash('Vous vous êtes bien deconnecté')
+    return redirect('/connection')
 
 #Customisation of 404 page
 @app.errorhandler(404)
