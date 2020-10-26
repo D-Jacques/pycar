@@ -25,10 +25,10 @@ def index():
 @login_required
 def logout():
     logout_user()
+    #This loop verify if an user was logged, if it's true it deletes the session
     if session.get('was_once_logged_in'):
-        # prevent flashing automatically logged out message
         del session['was_once_logged_in']
-    flash('Vous vous êtes bien deconnecter')
+    flash('Vous vous êtes bien deconnecté')
     return redirect('/connection')
 
 @app.errorhandler(404)
