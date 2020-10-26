@@ -1,12 +1,21 @@
-<!doctype html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <title>Hello from Flask</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyCar | Accueil</title>
 </head>
 <body>
   <h1>Bienvenue sur l'outil de gestion Pycar!</h1>
 
-  <form method="POST" action={{url_for('index')}}>
-    <p> hello {{username}} </p>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages%}
+          <p>{{message}}</p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    
+    <p> Bienvenue ! {{username}} </p>
   
-  </form>
 </body>
