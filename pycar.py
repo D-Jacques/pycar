@@ -102,11 +102,13 @@ def register():
 
     return render_template('register.html')
 
-@app.route('/logout')
+@app.route('/logout', methods=['POST', 'GET'])
 def logout():
+    if request.method == 'POST':
     # remove the username from the session if it's there
-    session.pop('username', None)
-    return redirect(url_for('connection'))
+             session.pop('logged_in', None)
+             flash('You were logged out')
+    return redirect(url_for('Connection'))
 
 #Customisation of 404 page
 @app.errorhandler(404)
