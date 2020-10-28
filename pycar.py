@@ -1,7 +1,6 @@
-import click
 import os
 import db
-import sqlite3
+
 from flask import(
      Flask, render_template, request,
      make_response, abort, redirect,
@@ -20,10 +19,13 @@ app.config.from_mapping(
 db.init_app(app)
 
 #Function that checks the login wrote in the form
-def valid_login(username):
+def valid_login(username, password, db_acess):
     if(bool(username)):
-        print(username)
-        return username
+        if db_acess.execute(
+            'SELECT id FROM pycar_user WHERE username = ?',
+            (username,)
+        ).fetchone() is not None:
+            return username
     else:
         return False
 
@@ -32,7 +34,7 @@ def valid_login(username):
 @app.route('/connection', methods=['POST', 'GET'])
 def connection():
     if request.method == 'POST':
-       if request.form['username']:
+       if valid_login(request.form['username'], request.form['password'], db.get_db()):
            flash('you were successfully logged in')
            session['username'] = request.form['username']
            return redirect(url_for('index'))
@@ -92,6 +94,7 @@ def register():
             )
             db_connect.commit()
 
+            flash('Le compte est désormais inscri, vous pouvez vous connecter')
             #The user is redirected to the connection page
             return redirect(url_for('connection'))
         
@@ -100,14 +103,10 @@ def register():
     return render_template('register.html')
 
 @app.route('/logout')
-@login_required
 def logout():
-    logout_user()
-    #This loop verify if an user was logged, if it's true it deletes the session
-    if session.get('was_once_logged_in'):
-        del session['was_once_logged_in']
-    flash('Vous vous êtes bien deconnecté')
-    return redirect('/connection')
+    # remove the username from the session if it's there
+    session.pop('username', None)
+    return redirect(url_for('connection'))
 
 #Customisation of 404 page
 @app.errorhandler(404)
