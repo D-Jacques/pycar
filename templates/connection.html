@@ -1,0 +1,29 @@
+<!doctype html>
+<head>
+  <title>Bienvenue sur la page de connection du garage PyCar</title>
+</head>
+<body>
+  <h1>Bienvenue sur la page de connection du garage PyCar</h1>
+
+  <p>Pour vous connecter à votre espace de travail, remplisser les champs ci-dessous avec les identifiants qui vous ont été attribué</p>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for message in messages%}
+        <p>{{message}}</p>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST" action={{url_for('connection')}}>
+    <label for="username">username</label>
+    <input type="text" name="username" id="username"/> <br>
+    <label for="password">password</label>
+    <input type="password" name="password" id="password"/> <br>
+
+    <button type="submit">valider</button>
+  
+  </form>
+
+  <a href="{{url_for('register')}}">lien temporaire vers page de connection</a>
+</body>

@@ -1,6 +1,6 @@
-#This file will create the 
-#connection between our 
-#database and our programm
+'''This file will create the 
+connection between our 
+database and our programm'''
 
 import sqlite3
 
@@ -45,7 +45,6 @@ def init_db():
 
     #We set our opened file value context in a variable called f as file
     with current_app.open_resource('pycar_schema.sql') as f:
-        #then with our db, the connection to our database, we execute the sql
         db.executescript(f.read().decode('utf8'))
 
 #We initialise a new function to activate 
@@ -58,9 +57,7 @@ def init_db_command():
 
 #So as the application use these functions, we have to declare them
 def init_app(app):
-    #app.teardown_appcontext declaration will automatically
-    #call close db when we got our data from the database
-    #while our cli.add_command will allow us to use init-db command
-    #In our terminal
+    #app.teardown_appcontext declaration will automatically call close db
+    #while our cli.add_command will allow us to use init-db command in terminal
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
