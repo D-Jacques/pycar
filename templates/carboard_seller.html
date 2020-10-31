@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyCar | Accueil</title>
+</head>
+<body>
+  <h1>Gestions des prix des véhicules!</h1>
+    <div>
+        <p> Bienvenue ! {{username}} </p>
+        <a href={{url_for('logout')}}>Se deconnecter</a>
+    </div>
+
+    <div>
+        <table>
+            <thead>
+                <th>Modèle</th>
+                <th>Marque</th>
+                <th>Prix de vente</th>
+            </thead>
+            <tbody>
+                {% for car in cars %}
+                <tr>
+                    <td>{{car.car_name}}</td>
+                    <td>{{car.car_brand}}</td>
+                    <form method="POST" action="">
+                        <td><input type="text" value="{{car.car_price}}"></td>
+                        <td><button>Changer le prix</button><td>
+                    </form>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+
+
+</body>

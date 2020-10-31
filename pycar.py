@@ -25,9 +25,9 @@ def connection():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        db_connect = db.get_db()
+        db_user = db.get_db()
         error = None
-        checkUser = db_connect.execute(
+        checkUser = db_user.execute(
             'SELECT * FROM pycar_user WHERE username = ?',
             (username,)
         ).fetchone()
@@ -113,6 +113,16 @@ def logout():
              session.pop('id', None)
              flash('Vous vous êtes déconnecté !')
     return redirect(url_for('Connection'))
+
+@app.route('/index/car_price')
+def car_price():
+    db_cars = db.get_db()
+    cars_data = db_cars.execute(
+        'SELECT * FROM pycar_cars'
+    ).fetchall()
+
+    return render_template('carboard_seller.html', cars = cars_data)
+
 
 #Customisation of 404 page
 @app.errorhandler(404)
