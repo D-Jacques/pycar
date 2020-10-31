@@ -1,9 +1,17 @@
 <!doctype html>
 <head>
-  <title>Hello from Flask</title>
+  <title>Inscrire un utilisateur</title>
 </head>
 <body>
-  <h1>Hello, World!</h1>
+  <h1>Inscrire un utilisateur sur l'outil pycar</h1>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for message in messages%}
+        <p>{{message}}</p>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
 
   <form method="POST" action={{url_for('register')}}>
     <label for="username">Nom d'utilisateur :</label>

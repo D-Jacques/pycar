@@ -18,30 +18,36 @@ app.config.from_mapping(
 #The flask init-db command that will initialise the database
 db.init_app(app)
 
-#Function that checks the login wrote in the form
-def valid_login(username, password, db_acess):
-    if(bool(username)):
-        if db_acess.execute(
-            'SELECT id FROM pycar_user WHERE username = ?',
-            (username,)
-        ).fetchone() is not None:
-            return username
-    else:
-        return False
-
 #It's the route for our main page, the user have to connect
 #with his logs to get farther
 @app.route('/connection', methods=['POST', 'GET'])
 def connection():
     if request.method == 'POST':
-       if valid_login(request.form['username'], request.form['password'], db.get_db()):
-           flash('you were successfully logged in')
-           session['username'] = request.form['username']
-           return redirect(url_for('index'))
-    return render_template('hello.html')
+        username = request.form['username']
+        password = request.form['password']
+        db_connect = db.get_db()
+        error = None
+        checkUser = db_connect.execute(
+            'SELECT * FROM pycar_user WHERE username = ?',
+            (username,)
+        ).fetchone()
 
-#We access this page only if we send a form with POST method,
-#then we check if the written username is correct
+        if checkUser is None:
+            error = 'Erreur : le nom d\'utilisateur renseigné n\'existe pas !'
+        elif not check_password_hash(checkUser['user_password'], password):
+            error = 'Erreur : Le mot de passe renseigné est incorrect pour cet utilisateur'
+
+        if error is None:
+            session.clear()        
+            session['username'] = checkUser['username']
+            session['id'] = checkUser['id']
+            return redirect(url_for('index'))
+        
+        flash(error)
+
+    return render_template('connection.html')
+
+#We check if a session is set with a username
 @app.route('/index')
 def index():
     if 'username' in session:
@@ -59,7 +65,6 @@ def index():
 def register():
     #If we send a form with the register.html page we fit the condition
     if request.method == 'POST':
-        #We get the values from the form
         username = request.form['username']
         password = request.form['password']
         email = request.form['email']
@@ -79,14 +84,12 @@ def register():
         elif db_connect.execute(
             'SELECT id FROM pycar_user WHERE username = ?', (username,)
         ).fetchone() is not None:
-            error = 'Un utilisateur avec ce nom d\'utilisateur existe déjà !'
+            error = 'Ce nom d\'utilisateur est déjà utilisé !'
         elif db_connect.execute(
             'SELECT id FROM pycar_user WHERE user_mail = ?', (email,)
         ).fetchone() is not None:
-            error = 'Un utilisateur avec ce nom d\'utilisateur existe déjà !'
+            error = 'l\'adresse mail est déjà utilisée!'
 
-        #The query here is executed if the form is filled correctly and
-        #if the values used for username and mail are not used
         if error is None:
             db_connect.execute(
                 'INSERT INTO pycar_user(username, user_password, user_mail) VALUES (?, ?, ?)',
@@ -98,7 +101,7 @@ def register():
             #The user is redirected to the connection page
             return redirect(url_for('connection'))
         
-        flash('error')
+        flash(error)
 
     return render_template('register.html')
 
@@ -106,6 +109,7 @@ def register():
 def logout():
     # remove the username from the session if it's there
     session.pop('username', None)
+    session.pop('id', None)
     return redirect(url_for('connection'))
 
 #Customisation of 404 page
