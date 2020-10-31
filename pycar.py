@@ -113,14 +113,14 @@ def register():
 
                     
                     if error is None:
-                        db.execute(
+                        db_connect.execute(
                             'INSERT INTO pycar_cars (car_name, car_brand,car_price) VALUES (?, ?, ?)',
                             (carname, carbrand, carprice)
                         )
-                        db.commit()
+                        db_connect.commit()
                         return redirect(url_for('Voiture'))
 
-                        
+
 @app.route('/logout')
 @app.route('/logout', methods=['POST'])
 def logout():
