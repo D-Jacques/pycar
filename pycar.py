@@ -61,6 +61,7 @@ def register():
 
     return render_template('register.html')
 
+<<<<<<< HEAD
 #It's the route for our main page, the user have to connect
 #with his logs to get farther
 @app.route('/connection', methods=['POST', 'GET'])
@@ -87,6 +88,35 @@ def connection():
         flash(error)
     return render_template('connection.html')
 
+=======
+  #Adding cars to the DataBase
+    @app.route('/AjoutVoiture', methods=('GET','POST'))
+        def AddCar():
+            if request.method == 'POST':
+                carname  = request.form['carname']
+                carbrand = request.form['carbrand']
+                carprice = request.form['carprice'] 
+                db_connect = db.get_db()
+                error = None
+
+                    if not carname:
+                        error = 'carname is required.'
+                    elif not carbrand:
+                         error = 'carbrand is required.'
+                    elif not carprice:
+                         error = 'carprice is required.'
+
+                    
+                    if error is None:
+                        db_connect.execute(
+                            'INSERT INTO pycar_cars (car_name, car_brand,car_price) VALUES (?, ?, ?)',
+                            (carname, carbrand, carprice)
+                        )
+                        db_connect.commit()
+                        return redirect(url_for('Voiture'))
+
+
+>>>>>>> 170dd41dcb43074527729618b62f5f0060b2e8a3
 @app.route('/logout')
 def logout():
     session.pop('username', None)

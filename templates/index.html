@@ -19,5 +19,16 @@
     <p> Bienvenue ! {{username}} </p>
 
     <a href={{url_for('logout')}}>Se deconnecter</a>
+<br></br>
+     <form action="" method="POST">
+        <label>Entrer la marque de la voiture:</label>
+        <input type="text" name="carname" placeholder="Marque"></br>
+        <label>Entrer le modele de la voiture:</label>
+        <input type="text" name="carbrand" placeholder="Modele"></br> 
+        <label>Entrer le prix de la voiture:</label> 
+        <input type="number" min=0 name="carprice" placeholder="Prix (€)"></br>
+        <button type="submit">Envoyer</button>
+
+    </form>
   
 </body>
