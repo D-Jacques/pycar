@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PyCar | Accueil</title>
+    <title>PyCar | Gestions des véhicules</title>
 </head>
 <body>
   <h1>Gestions des prix des véhicules!</h1>
@@ -12,22 +12,29 @@
         <a href={{url_for('logout')}}>Se deconnecter</a>
     </div>
 
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages%}
+            <p>{{message}}</p>
+        {% endfor %}
+        {% endif %}
+    {% endwith %}
+
     <div>
         <table>
             <thead>
                 <th>Modèle</th>
                 <th>Marque</th>
                 <th>Prix de vente</th>
+                <th>Modification</th>
             </thead>
             <tbody>
                 {% for car in cars %}
                 <tr>
                     <td>{{car.car_name}}</td>
                     <td>{{car.car_brand}}</td>
-                    <form method="POST" action="">
-                        <td><input type="text" value="{{car.car_price}}"></td>
-                        <td><button>Changer le prix</button><td>
-                    </form>
+                    <td>{{car.car_price}}</td>
+                    <td><a href={{url_for('car_modification', id_car=car.id)}}>Modifier les informations du véhicule</a><td>
                 </tr>
                 {% endfor %}
             </tbody>
