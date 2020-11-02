@@ -41,6 +41,10 @@
         </table>
     </div>
 
-    <a href={{url_for('car_add')}}>Ajouter un véhicule</a>
+    <br>
+
+    {% if session.role != 'mecanicien' %}    
+        <a href={{url_for('car_add')}}>Ajouter un véhicule</a>
+    {% endif %}
 
 </body>

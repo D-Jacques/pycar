@@ -1,5 +1,6 @@
 import os
 import db
+import functools
 from flask import(
      Flask, render_template, request,
      abort, redirect, url_for,
@@ -17,6 +18,16 @@ app.config.from_mapping(
 #The flask init-db command that will initialise the database
 db.init_app(app)
 
+def login_required(view):
+    @functools.wraps(view)
+    def wrapped_view(**kwargs):
+        if session.get('id') is None:
+            return redirect(url_for('connection'))
+
+        return view(**kwargs)
+
+    return wrapped_view
+
         
 #We registers users here
 @app.route('/register', methods=['POST', 'GET'])
@@ -26,6 +37,7 @@ def register():
         username = request.form['username']
         password = request.form['password']
         email = request.form['email']
+        role = request.form['role']
         #We open the connection to the database
         db_connect = db.get_db()
         error = None
@@ -49,8 +61,8 @@ def register():
             error = 'l\'adresse mail est déjà utilisée!'
         if error is None:
             db_connect.execute(
-                'INSERT INTO pycar_user(username, user_password, user_mail) VALUES (?, ?, ?)',
-                (username,generate_password_hash(password), email)
+                'INSERT INTO pycar_user(username, user_password, user_mail, user_role) VALUES (?, ?, ?, ?)',
+                (username,generate_password_hash(password), email, role)
             )
             db_connect.commit()
             flash('Le compte est désormais inscri, vous pouvez vous connecter')
@@ -82,13 +94,30 @@ def connection():
             session.clear()
             session['username'] = checkUser['username']
             session['id'] = checkUser['id']
+            session['role'] = checkUser['user_role']
             return redirect(url_for('index'))
         
         flash(error)
     return render_template('connection.html')
 
+@app.route('/logout')
+@login_required
+def logout():
+    session.pop('username', None)
+    session.pop('id', None)
+    flash('Vous vous êtes déconnecté !')
+    return redirect(url_for('connection'))
+
+#We check if a session is set with a username
+@app.route('/index')
+@login_required
+def index():
+    return render_template('index.html')
+
+
 #Adding cars to the DataBase
 @app.route('/add_car', methods=('GET','POST'))
+@login_required
 def car_add():
     
     db_connect = db.get_db()
@@ -117,29 +146,9 @@ def car_add():
         flash(error)
 
     return render_template('add_car.html')
-    
-
-@app.route('/logout')
-def logout():
-    session.pop('username', None)
-    session.pop('id', None)
-    flash('Vous vous êtes déconnecté !')
-    return redirect(url_for('connection'))
-
-#We check if a session is set with a username
-@app.route('/index')
-def index():
-    if 'username' in session:
-        return render_template('index.html', username = session['username'])
-    else:
-        #Propre ?
-        return '''
-            <p>Vous ne pouvez pas acceder à cette page sans être authentifié !</p>
-            <br>
-            <a href=connection> Se connecter </a>
-        '''
 
 @app.route('/car_board')
+@login_required
 def car_board():
     db_cars = db.get_db()
     cars_data = db_cars.execute(

@@ -2,7 +2,8 @@ CREATE TABLE IF NOT EXISTS pycar_user(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE NOT NULL,
     user_password TEXT NOT NULL,
-    user_mail TEXT UNIQUE NOT NULL
+    user_mail TEXT UNIQUE NOT NULL,
+    user_role TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS pycar_cars(
