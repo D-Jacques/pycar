@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PyCar - modifier un véhicule</title>
+    <title>PyCar - Ajouter un véhicule</title>
 </head>
 <body>
 
@@ -15,17 +15,17 @@
         {% endif %}
     {% endwith %}
 
-    <h1>Modification d'un véhicule</h1>
+    <h1>Ajout d'un véhicule</h1>
 
-    <form action={{url_for('car_modification', id_car=cars.id)}} method="POST">
+    <form action={{url_for('car_add')}} method="POST">
         <label for="car_name">Modèle de véhicule : </label>
-        <input type="text" name="car_name" id="car_name" value={{cars.car_name}} placeholder="Entrez le nom du modèle du véhicule"><br/>
+        <input type="text" name="car_name" id="car_name" placeholder="Entrez le nom du modèle du véhicule"><br/>
         <label for="car_brand">Contructeur de véhicule : </label>
-        <input type="text" name="car_brand" id="car_brand" value={{cars.car_brand}} placeholder="Entrez le constructeur du véhicule"><br/>
+        <input type="text" name="car_brand" id="car_brand" placeholder="Entrez le constructeur du véhicule"><br/>
         <label for="car_price">Prix de véhicule : </label>
-        <input type="text" name="car_price" id="car_price" value={{cars.car_price}} placeholder="Entrez le prix de vente du véhicule"><br/>
+        <input type="text" name="car_price" id="car_price" placeholder="Entrez le prix de vente du véhicule"><br/>
     
-        <button type="submit">Modifier</button>
+        <button type="submit">Ajouter</button>
     </form>
 
     <a href={{url_for('car_board')}}>Tableau de bord</a>

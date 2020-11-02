@@ -2,8 +2,8 @@ import os
 import db
 from flask import(
      Flask, render_template, request,
-     make_response, abort, redirect,
-     url_for, session, flash, g
+     abort, redirect, url_for,
+     session, flash, g
 )
 from markupsafe import escape
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -61,7 +61,6 @@ def register():
 
     return render_template('register.html')
 
-<<<<<<< HEAD
 #It's the route for our main page, the user have to connect
 #with his logs to get farther
 @app.route('/connection', methods=['POST', 'GET'])
@@ -88,35 +87,38 @@ def connection():
         flash(error)
     return render_template('connection.html')
 
-=======
-  #Adding cars to the DataBase
-    @app.route('/AjoutVoiture', methods=('GET','POST'))
-        def AddCar():
-            if request.method == 'POST':
-                carname  = request.form['carname']
-                carbrand = request.form['carbrand']
-                carprice = request.form['carprice'] 
-                db_connect = db.get_db()
-                error = None
+#Adding cars to the DataBase
+@app.route('/add_car', methods=('GET','POST'))
+def car_add():
+    
+    db_connect = db.get_db()
+    error = None    
+    
+    if request.method == 'POST':
+        car_name  = request.form['car_name']
+        car_brand = request.form['car_brand']
+        car_price = request.form['car_price'] 
 
-                    if not carname:
-                        error = 'carname is required.'
-                    elif not carbrand:
-                         error = 'carbrand is required.'
-                    elif not carprice:
-                         error = 'carprice is required.'
+        if not car_name:
+            error = 'Vous ne pouvez pas laisser le nom du modèle vide !'
+        elif not car_brand:
+            error = 'Vous ne pouvez pas laisser le nom du contructeur vide !'
+        elif not car_price:
+            error = 'Vous ne pouvez pas laisser le prix vide !'
+        
+        if error is None:
+            db_connect.execute(
+                'INSERT INTO pycar_cars (car_name, car_brand, car_price) VALUES (?, ?, ?)',
+                (car_name, car_brand, car_price)
+                )
+            db_connect.commit()
+            return redirect(url_for('car_board'))
 
-                    
-                    if error is None:
-                        db_connect.execute(
-                            'INSERT INTO pycar_cars (car_name, car_brand,car_price) VALUES (?, ?, ?)',
-                            (carname, carbrand, carprice)
-                        )
-                        db_connect.commit()
-                        return redirect(url_for('Voiture'))
+        flash(error)
 
+    return render_template('add_car.html')
+    
 
->>>>>>> 170dd41dcb43074527729618b62f5f0060b2e8a3
 @app.route('/logout')
 def logout():
     session.pop('username', None)
@@ -137,50 +139,51 @@ def index():
             <a href=connection> Se connecter </a>
         '''
 
-
-#Adding cars to the DataBase
-# @app.route('/AjoutVoiture', methods=('GET','POST'))
-# def AddCar():
-#     if request.method == 'POST':
-#         carname  = request.form['carname']
-#         carbrand = request.form['carbrand']
-#         carprice = request.form['carprice'] 
-#         db_connect = db.get_db()
-#         error = None
-
-#         if not carname:
-#             error = 'carname is required.'
-#         elif not carbrand:
-#                 error = 'carbrand is required.'
-#         elif not carprice:
-#                 error = 'carprice is required.'
-
-        
-#         if error is None:
-#             db_connect.execute(
-#                 'INSERT INTO pycar_cars (car_name, car_brand,car_price) VALUES (?, ?, ?)',
-#                 (carname, carbrand, carprice)
-#             )
-#             db_connect.commit()
-#         return redirect(url_for('Voiture'))
-
-@app.route('/index/car_board_seller')
-def car_board_seller():
+@app.route('/car_board')
+def car_board():
     db_cars = db.get_db()
     cars_data = db_cars.execute(
         'SELECT * FROM pycar_cars'
     ).fetchall()
 
-    return render_template('carboard_seller.html', cars = cars_data)
+    return render_template('car_board.html', cars = cars_data)
 
-@app.route('/index/modify_car/<id_car>', methods=['POST', 'GET'])
+@app.route('/modify_car/<id_car>', methods=['POST', 'GET'])
 def car_modification(id_car=None):
+    #Get the car we want to modify, we're finding it by id
     db_cars = db.get_db()
+    error = None
+
+    #If we submitted a form
+    if request.method == 'POST':
+        car_name = request.form['car_name']
+        car_brand = request.form['car_brand']
+        car_price = request.form['car_price']
+
+        if not car_name:
+            error = 'Vous ne pouvez pas laisser le nom du modèle vide !'
+        elif not car_brand:
+            error = 'Vous ne pouvez pas laisser le nom du contructeur vide !'
+        elif not car_price:
+            error = 'Vous ne pouvez pas laisser le prix vide !'
+
+        if error is not None:
+            flash(error)
+        else:
+            db_cars.execute(
+                'UPDATE pycar_cars SET car_name = ?, car_brand = ?, car_price = ?'
+                ' WHERE id = ?',
+                (car_name, car_brand, car_price, id_car)
+            )
+            db_cars.commit()
+            flash('Modification effectuée')
+
     car_selected = db_cars.execute(
         'SELECT * FROM pycar_cars WHERE id = ?',
         (id_car,)
     ).fetchone()
 
+    #If we don't find the car with the given id
     if car_selected is None:
         error = 'La voiture que vous voulez modifier n\'existe pas !'
         flash(error)
