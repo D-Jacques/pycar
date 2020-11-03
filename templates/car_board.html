@@ -27,6 +27,7 @@
                 <th>Marque</th>
                 <th>Prix de vente</th>
                 <th>Modification</th>
+                <th>Suppression</th>
             </thead>
             <tbody>
                 {% for car in cars %}
@@ -35,6 +36,9 @@
                     <td>{{car.car_brand}}</td>
                     <td>{{car.car_price}}</td>
                     <td><a href={{url_for('car_modification', id_car=car.id)}}>Modifier les informations du véhicule</a><td>
+                    <form action={{url_for('car_delete', id_car=car.id)}} method="post">
+                        <button class="danger" type="submit" value="Supprimer" onclick="return confirm('Are you sure?');">Supprimer le véhicule</button>
+                    </form>
                 </tr>
                 {% endfor %}
             </tbody>

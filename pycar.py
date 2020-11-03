@@ -192,6 +192,8 @@ def car_modification(id_car=None):
         (id_car,)
     ).fetchone()
 
+
+
     #If we don't find the car with the given id
     if car_selected is None:
         error = 'La voiture que vous voulez modifier n\'existe pas !'
@@ -199,6 +201,32 @@ def car_modification(id_car=None):
         return redirect(url_for('car_board_seller'))
     
     return render_template('modify_car.html', cars=car_selected)
+
+   
+@app.route('/delete_car/<id_car>', methods=['POST'])
+@login_required
+def car_delete(id_car):
+    db_cars = db.get_db()
+    error = None
+    car_selected = db_cars.execute(
+        'SELECT * FROM pycar_cars WHERE id = ?',
+        (id_car,)
+    ).fetchone()
+    
+    if car_selected is None:
+        error = 'La voiture que vous voulez supprimer n\'existe pas!'
+        flash(error)
+    else :
+        db_cars.execute(
+            'DELETE FROM pycar_cars WHERE id = ?', 
+            (id_car,)
+        )
+        db_cars.commit()
+        flash("La voiture a bien été supprimé")
+
+    
+    return redirect(url_for('car_board'))   
+
 
 #Customisation of 404 page
 @app.errorhandler(404)
