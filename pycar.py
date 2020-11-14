@@ -115,6 +115,72 @@ def index():
     return render_template('index.html')
 
 
+@app.route('/page_profil')
+@login_required
+def page_profil():
+    return render_template('page_profil.html')
+
+@app.route('/mail_change')
+@login_required
+def mail_change():
+    return render_template('mail_change.html')
+
+@app.route('/password_change')
+@login_required
+def password_change():
+    return render_template('password_change.html')
+
+@app.route('/change_mail',  methods=['POST', 'GET'])
+@login_required
+def change_mail():
+    db_user = db.get_db()
+    error = None
+
+    if request.method == 'POST':
+        mail_user  = request.form['mail_user']
+        new_mail_user = request.form['new_mail']
+        new_mail2_user = request.form['new_mail2']
+
+        
+        if mail_user == new_mail_user:
+            error = "La nouvelle adresse mail ne peut pas être le même que l'ancien"
+        if error is not None:
+            flash(error)
+        if error is None:
+            db_connect.execute(
+                'UPDATE pycar_user SET user_mail = ?',
+                (new_mail_user)
+                )
+            db_connect.commit()
+            return redirect(url_for('page_profil'))
+
+@app.route('/change_password',  methods=['POST', 'GET'])
+@login_required
+def change_password():
+    db_user = db.get_db()
+    error = None
+
+    if request.method == 'POST':
+        password_user  = request.form['password_user']
+        new_password_user = request.form['new_password']
+        new_password2_user = request.form['new_password2']
+
+        if password_user == new_password_user:
+            error = "Le nouveau mot de passe ne peut pas être le même que l'ancien"
+        
+        if error is not None:
+            flash(error)
+        
+        if error is None:
+            db_connect.execute(
+                'UPDATE pycar_user SET user_password = ?',
+                (new_password_user)
+                )
+            db_connect.commit()
+            return redirect(url_for('page_profil'))
+
+
+
 #Adding cars to the DataBase
 @app.route('/add_car', methods=('GET','POST'))
 @login_required
