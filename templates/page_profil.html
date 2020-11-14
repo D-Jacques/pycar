@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page profil</title>
+</head>
+<body>
+    
+        <label >email</label>
+        <input type="email" name="mail"  >
+        <br>
+        <a href={{url_for('mail_change')}}>Voulez vous changer l'adresse mail?</href>
+        <br>
+        <br>
+        <label >password</label>
+        <input type="password" name="password">
+        <br>
+        <a href={{url_for('password_change')}}>Voulez vous changer le mot de passe?</href>
+
+        <input type="submit">
+   
+</body>
+</html>

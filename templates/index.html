@@ -8,8 +8,9 @@
 <body>
   <h1>Bienvenue sur l'outil de gestion Pycar!</h1>
 
-  <a href={{url_for('logout')}}>Se deconnecter</a>
-
+  <tr><td><a href={{url_for('logout')}}>Se deconnecter</a></td>
+      
+  </tr>
     {% with messages = get_flashed_messages() %}
       {% if messages %}
         {% for message in messages%}
@@ -26,6 +27,9 @@
     {% if session.role != 'vendeur' %}
       <a href={{url_for('car_board_mechanic')}}>Maintenance véhicules</a>
     {% endif %}
+    
+    <a href={{url_for('page_profil')}}>Profil</a>
+
 
   
 </body>
