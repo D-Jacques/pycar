@@ -20,9 +20,12 @@
     
     <p> Bienvenue ! {{session.username}} vous êtes un {{session.role}}</p>
 
-
-    <a href={{url_for('car_board')}}>Tableau de bord</a>
-
+    {% if session.role != 'mecanicien' %}
+      <a href={{url_for('car_board_seller')}}>Tableau de bord</a>
+    {% endif %}
+    {% if session.role != 'vendeur' %}
+      <a href={{url_for('car_board_mechanic')}}>Maintenance véhicules</a>
+    {% endif %}
 
   
 </body>

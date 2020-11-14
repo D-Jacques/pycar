@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyCar | Edition fiche technique</title>
+</head>
+<body>
+    
+    <h1>Fiche technique de véhicule</h1>
+
+    <form action={{url_for('car_create_sheet', id_car = id_car)}} method="POST">
+        <textarea name="sheet_content" id="sheet_content" cols="30" rows="10"></textarea>
+
+        <button>Créer</button>
+    </form>
+        
+</body>
+</html>

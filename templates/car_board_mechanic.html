@@ -26,8 +26,7 @@
                 <th>Modèle</th>
                 <th>Marque</th>
                 <th>Prix de vente</th>
-                <th>Modification</th>
-                <th>Suppression</th>
+                <th>Fiche technique</th>
             </thead>
             <tbody>
                 {% for car in cars %}
@@ -35,24 +34,11 @@
                     <td>{{car.car_name}}</td>
                     <td>{{car.car_brand}}</td>
                     <td>{{car.car_price}}</td>
-                    <td><a href={{url_for('car_modification', id_car=car.id)}}>Modifier les informations du véhicule</a><td>
-<<<<<<< HEAD
-                    <form action=""></form>
-=======
-                    <form action={{url_for('car_delete', id_car=car.id)}} method="post">
-                        <button class="danger" type="submit" value="Supprimer" onclick="return confirm('Are you sure?');">Supprimer le véhicule</button>
-                    </form>
->>>>>>> da61a3061ac1c55a3acd3d186848c345edb63036
+                    <td><a href={{url_for('car_create_sheet', id_car=car.id)}}>Fiche technique</a></td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
-
-    <br>
-
-    {% if session.role != 'mecanicien' %}    
-        <a href={{url_for('car_add')}}>Ajouter un véhicule</a>
-    {% endif %}
 
 </body>

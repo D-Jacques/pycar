@@ -10,5 +10,6 @@ CREATE TABLE IF NOT EXISTS pycar_cars(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     car_name TEXT NOT NULL,
     car_brand TEXT NOT NULL,
-    car_price REAL NOT NULL
+    car_price REAL NOT NULL,
+    to_repair INTEGER NOT NULL 
 );
