@@ -133,7 +133,7 @@ def password_change():
 @app.route('/change_mail',  methods=['POST', 'GET'])
 @login_required
 def change_mail():
-    db_user = db.get_db()
+    db_mail = db.get_db()
     error = None
 
     if request.method == 'POST':
@@ -147,17 +147,17 @@ def change_mail():
         if error is not None:
             flash(error)
         if error is None:
-            db_connect.execute(
+            db_mail.execute(
                 'UPDATE pycar_user SET user_mail = ?',
                 (new_mail_user)
                 )
-            db_connect.commit()
+            db_mail.commit()
             return redirect(url_for('page_profil'))
 
 @app.route('/change_password',  methods=['POST', 'GET'])
 @login_required
 def change_password():
-    db_user = db.get_db()
+    db_password = db.get_db()
     error = None
 
     if request.method == 'POST':
@@ -172,11 +172,11 @@ def change_password():
             flash(error)
         
         if error is None:
-            db_connect.execute(
+            db_password.execute(
                 'UPDATE pycar_user SET user_password = ?',
                 (new_password_user)
                 )
-            db_connect.commit()
+            db_password.commit()
             return redirect(url_for('page_profil'))
 
 
