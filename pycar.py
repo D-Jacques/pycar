@@ -203,25 +203,35 @@ def car_add():
         
         if error is None:
             db_connect.execute(
-                'INSERT INTO pycar_cars (car_name, car_brand, car_price) VALUES (?, ?, ?)',
-                (car_name, car_brand, car_price)
+                'INSERT INTO pycar_cars (car_name, car_brand, car_price, to_repair) VALUES (?, ?, ?, ?)',
+                (car_name, car_brand, car_price, 0)
                 )
             db_connect.commit()
-            return redirect(url_for('car_board'))
+            return redirect(url_for('car_board_seller'))
 
         flash(error)
 
     return render_template('add_car.html')
 
-@app.route('/car_board')
+@app.route('/car_board/vendeur')
 @login_required
-def car_board():
+def car_board_seller():
     db_cars = db.get_db()
     cars_data = db_cars.execute(
         'SELECT * FROM pycar_cars'
     ).fetchall()
 
-    return render_template('car_board.html', cars = cars_data)
+    return render_template('car_board_seller.html', cars = cars_data)
+
+@app.route('/car_board/mecanicien')
+@login_required
+def car_board_mechanic():
+    db_cars = db.get_db()
+    cars_data = db_cars.execute(
+        'SELECT * FROM pycar_cars'
+    ).fetchall()
+
+    return render_template('car_board_mechanic.html', cars = cars_data)
 
 @app.route('/modify_car/<id_car>', methods=['POST', 'GET'])
 def car_modification(id_car=None):
@@ -291,7 +301,30 @@ def car_delete(id_car):
         flash("La voiture a bien été supprimé")
 
     
-    return redirect(url_for('car_board'))   
+    return redirect(url_for('car_board_seller'))   
+
+@app.route('/car_create_sheet/<id_car>', methods=['POST', 'GET'])
+@login_required
+def car_create_sheet(id_car):
+    error = None
+    db_cars = db.get_db()
+    if request.method == 'POST':
+        sheet_content = request.form['sheet_content']
+        cars_data = db_cars.execute(
+            'SELECT * FROM pycar_cars WHERE id = ?',
+            (id_car,)
+        ).fetchone()
+
+        if cars_data is None:
+            error = 'La voiture d\'id '+id_car+' n\'existe pas !'
+        else:
+            with open(cars_data['car_name']+"-"+id_car+".txt", "a") as fichier:
+                fichier.write(sheet_content)
+
+        if not sheet_content:
+            error = 'La fiche technique ne peut pas être vide !'
+
+    return render_template('sheet_creation.html', id_car = id_car)
 
 
 #Customisation of 404 page
