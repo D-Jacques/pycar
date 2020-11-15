@@ -1,6 +1,7 @@
 import os
 import db
 import functools
+
 from flask import(
      Flask, render_template, request,
      abort, redirect, url_for,
@@ -8,6 +9,8 @@ from flask import(
 )
 from markupsafe import escape
 from werkzeug.security import check_password_hash, generate_password_hash
+from pprint import pprint
+
 app = Flask(__name__)
 app.config.from_mapping(
     SECRET_KEY = 'dev',
@@ -29,7 +32,6 @@ def login_required(view):
     return wrapped_view
 
         
-#We registers users here
 @app.route('/register', methods=['POST', 'GET'])
 @login_required
 def register():
@@ -67,8 +69,8 @@ def register():
             )
             db_connect.commit()
             flash('Le compte est désormais inscri, l\'utilisateur peut se connecter avec ce compte')
-        
-        flash(error)
+        else:
+            flash(error)
 
     return render_template('register.html')
 
@@ -113,6 +115,7 @@ def logout():
 def index():
     return render_template('index.html')
 
+#Access to the user's profile page where he can change password and mail
 @app.route('/page_profil')
 @login_required
 def page_profil():
@@ -144,22 +147,29 @@ def change_mail():
         new_mail_check = request.form['new_mail_check']
 
         if user_datas['user_mail'] != mail_user:
-            error = "Veuillez rentrer votre mot de passe actuel dans le premier champ"
+            error = "Veuillez rentrer votre adresse mail actuelle dans le premier champ"
         
         if mail_user == new_mail_user:
-            error = "La nouvelle adresse mail ne peut pas être le même que l'ancien"
+            error = "La nouvelle adresse mail ne peut pas être la même que l'ancienne"
         elif not new_mail_user:
-            error = "Vous devez rentrer votre nouveau mot de passe"
+            error = "Vous devez rentrer votre nouvelle adresse mail"
         elif new_mail_user != new_mail_check:
             error = "Vous devez rentrer la même adresse mail dans les deux derniers champs"
+        elif db_user.execute(
+            'SELECT * FROM pycar_user WHERE user_mail = ?',
+            (new_mail_user,)
+        ).fetchone() is not None:
+            error = 'La nouvelle adresse renseignée est déjà utilisée !'
 
         if error is not None:
             flash(error)
         if error is None:
+            flash(new_mail_user)
             db_user.execute(
-                'UPDATE pycar_user SET user_mail = ?',
-                (new_mail_user,)
-                )
+                'UPDATE pycar_user SET user_mail = ?'
+                ' WHERE id = ?',
+                (new_mail_user, session['id'],)
+            )
             db_user.commit()
             flash('Votre adresse mail à été modifiée avec succès !')
             return redirect(url_for('page_profil'))
@@ -197,8 +207,9 @@ def change_password():
         
         if error is None:
             db_user.execute(
-                'UPDATE pycar_user SET user_password = ?',
-                (generate_password_hash(new_password_user),)
+                'UPDATE pycar_user SET user_password = ?'
+                'WHERE id = ?',
+                (generate_password_hash(new_password_user), session['id'])
                 )
             db_user.commit()
             flash('Votre mot de passe à été modifiée avec succès !')
@@ -294,7 +305,7 @@ def car_modification(id_car=None):
     
     return render_template('modify_car.html', cars=car_selected)
 
-   
+#Delete a car
 @app.route('/delete_car/<id_car>', methods=['POST'])
 @login_required
 def car_delete(id_car):
@@ -314,7 +325,7 @@ def car_delete(id_car):
             (id_car,)
         )
         db_cars.commit()
-        flash("La voiture a bien été supprimé")
+        flash("La voiture a bien été supprimée")
     
     return redirect(url_for('car_board'))   
 
@@ -339,8 +350,11 @@ def car_create_sheet(id_car):
         flash(error)
         return redirect(url_for('car_board'))
     
+    #If the directory car_sheets does not exists, we create it
     if os.path.isdir('car_sheets') == False:
         os.mkdir('car_sheets')
+    #We read the file to print it in the textarea's view if the user wants to
+    #Complete it
     if os.path.isfile("car_sheets/"+cars_data['car_name']+"-"+id_car+".txt"):
         with open("car_sheets/"+cars_data['car_name']+"-"+id_car+".txt", "r+") as car_sheet_file:
             file_content = car_sheet_file.read()
@@ -349,7 +363,9 @@ def car_create_sheet(id_car):
     if request.method == 'POST':
         sheet_content = request.form['sheet_content']
 
-        with open("car_sheets/"+cars_data['car_name']+"-"+id_car+".txt", "a") as car_sheet_file:
+        #We overwrite the last car_sheet file with the new content if the file
+        #does not exists it's created
+        with open("car_sheets/"+cars_data['car_name']+"-"+id_car+".txt", "w") as car_sheet_file:
             car_sheet_file.write(sheet_content)
 
         if not sheet_content:
@@ -357,6 +373,8 @@ def car_create_sheet(id_car):
 
         if error is not None:
             flash(error)
+        else:
+            flash('fiche technique éditée avec succès')
             return redirect(url_for('car_board'))
 
     return render_template('sheet_creation.html', id_car = id_car, file_content = file_content)
