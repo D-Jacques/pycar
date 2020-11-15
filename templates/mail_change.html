@@ -7,18 +7,29 @@
 </head>
 <body>
 
-<form action={{url_for('change_mail')}} method="post">
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages%}
+            <p>{{message}}</p>
+        {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+<form action="{{url_for('change_mail')}}" method="post">
     <label >Ancienne addresse mail</label>
-    <input type="email" name="mail"  >
+    <input type="email" name="mail_user" value="{{user.user_mail}}" >
     <br><br>
 
     <label >Nouvelle addresse mail</label>
-    <input type="email" name="new_mail"  >
+    <input type="email" name="new_mail" />
     <br><br>
     <label >Confirmer nouvelle adresse mail</label>
-    <input type="email" name="new_mail2"  >
+    <input type="email" name="new_mail_check" />
     <br><br>
     <input type="submit" value="Envoyer">
 </form>
+
+<a href="{{url_for('page_profil')}}">Retour</a>
+
 </body>
 </html>

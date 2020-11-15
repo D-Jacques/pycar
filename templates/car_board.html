@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyCar | Gestions des véhicules</title>
+</head>
+<body>
+  <h1>Gestions des prix des véhicules!</h1>
+    <div>
+        <p> Bienvenue ! {{username}} </p>
+        <a href={{url_for('logout')}}>Se deconnecter</a>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages%}
+            <p>{{message}}</p>
+        {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div>
+        <table>
+            <thead>
+                <th>Modèle</th>
+                <th>Marque</th>
+                <th>Prix de vente</th>
+                {% if session.role != 'mecanicien' %}    
+                    <th>Modification</th>
+                    <th>Suppression</th>
+                {% endif %}
+                {% if session.role != 'vendeur' %}    
+                    <th>Fiche technique</th>
+                {% endif %}
+            </thead>
+            <tbody>
+                {% for car in cars %}
+                <tr>
+                    <td>{{car.car_name}}</td>
+                    <td>{{car.car_brand}}</td>
+                    <td>{{car.car_price}}</td>
+                    {% if session.role != 'mecanicien' %}    
+                        <td><a href="{{url_for('car_modification', id_car=car.id)}}">Modifier les informations du véhicule</a><td>
+                        <form action="{{url_for('car_delete', id_car=car.id)}}" method="post">
+                            <button class="danger" type="submit" value="Supprimer" onclick="return confirm('Voulez-vous supprimer ce véhicule ?');">Supprimer le véhicule</button>
+                        </form>
+                    {% endif %}
+                    {% if session.role != 'vendeur' %}    
+                        <td><a href="{{url_for('car_create_sheet', id_car=car.id)}}">Fiche technique</a></td>
+                    {% endif %}
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <br>
+
+    {% if session.role != 'mecanicien' %}    
+        <a href="{{url_for('car_add')}}">Ajouter un véhicule</a><br>
+    {% endif %}
+
+    <a href="{{url_for('index')}}">Retour vers l'index</a>
+
+</body>

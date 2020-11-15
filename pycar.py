@@ -31,6 +31,7 @@ def login_required(view):
         
 #We registers users here
 @app.route('/register', methods=['POST', 'GET'])
+@login_required
 def register():
     #If we send a form with the register.html page we fit the condition
     if request.method == 'POST':
@@ -65,9 +66,7 @@ def register():
                 (username,generate_password_hash(password), email, role)
             )
             db_connect.commit()
-            flash('Le compte est désormais inscri, vous pouvez vous connecter')
-            #The user is redirected to the connection page
-            return redirect(url_for('connection'))
+            flash('Le compte est désormais inscri, l\'utilisateur peut se connecter avec ce compte')
         
         flash(error)
 
@@ -114,21 +113,19 @@ def logout():
 def index():
     return render_template('index.html')
 
-
 @app.route('/page_profil')
 @login_required
 def page_profil():
-    return render_template('page_profil.html')
+    db_user = db.get_db()
 
-@app.route('/mail_change')
-@login_required
-def mail_change():
-    return render_template('mail_change.html')
+    user_datas = db_user.execute(
+        'SELECT user_mail FROM pycar_user WHERE id = ?',
+        (session['id'],)
+    ).fetchone()
 
-@app.route('/password_change')
-@login_required
-def password_change():
-    return render_template('password_change.html')
+    print(user_datas)
+
+    return render_template('page_profil.html', user = user_datas)
 
 @app.route('/change_mail',  methods=['POST', 'GET'])
 @login_required
@@ -136,23 +133,38 @@ def change_mail():
     db_user = db.get_db()
     error = None
 
+    user_datas = db_user.execute(
+        'SELECT user_mail FROM pycar_user WHERE id = ?',
+        (session['id'],)
+    ).fetchone()
+
     if request.method == 'POST':
         mail_user  = request.form['mail_user']
         new_mail_user = request.form['new_mail']
-        new_mail2_user = request.form['new_mail2']
+        new_mail_check = request.form['new_mail_check']
 
+        if user_datas['user_mail'] != mail_user:
+            error = "Veuillez rentrer votre mot de passe actuel dans le premier champ"
         
         if mail_user == new_mail_user:
             error = "La nouvelle adresse mail ne peut pas être le même que l'ancien"
+        elif not new_mail_user:
+            error = "Vous devez rentrer votre nouveau mot de passe"
+        elif new_mail_user != new_mail_check:
+            error = "Vous devez rentrer la même adresse mail dans les deux derniers champs"
+
         if error is not None:
             flash(error)
         if error is None:
-            db_connect.execute(
+            db_user.execute(
                 'UPDATE pycar_user SET user_mail = ?',
-                (new_mail_user)
+                (new_mail_user,)
                 )
-            db_connect.commit()
+            db_user.commit()
+            flash('Votre adresse mail à été modifiée avec succès !')
             return redirect(url_for('page_profil'))
+    
+    return render_template('mail_change.html', user = user_datas)
 
 @app.route('/change_password',  methods=['POST', 'GET'])
 @login_required
@@ -162,24 +174,37 @@ def change_password():
 
     if request.method == 'POST':
         password_user  = request.form['password_user']
-        new_password_user = request.form['new_password']
-        new_password2_user = request.form['new_password2']
+        new_password_user = request.form['new_password_user']
+        new_password_check = request.form['new_password_check']
+
+        user_datas = db_user.execute(
+            'SELECT user_password FROM pycar_user WHERE id = ?',
+            (session['id'],)
+        ).fetchone()
+
+        if not check_password_hash(user_datas['user_password'], password_user):
+            error = "Votre mot de passe est incorrect"
 
         if password_user == new_password_user:
             error = "Le nouveau mot de passe ne peut pas être le même que l'ancien"
-        
+        elif not new_password_user:
+            error = "Veuillez rentrer votre nouveau mot de passe"
+        elif new_password_user != new_password_check:
+            error = "Vous devez rentrer le même mot de passe dans les deux dernier champs"
+
         if error is not None:
             flash(error)
         
         if error is None:
-            db_connect.execute(
+            db_user.execute(
                 'UPDATE pycar_user SET user_password = ?',
-                (new_password_user)
+                (generate_password_hash(new_password_user),)
                 )
-            db_connect.commit()
+            db_user.commit()
+            flash('Votre mot de passe à été modifiée avec succès !')
             return redirect(url_for('page_profil'))
 
-
+    return render_template('password_change.html')
 
 #Adding cars to the DataBase
 @app.route('/add_car', methods=('GET','POST'))
@@ -207,31 +232,23 @@ def car_add():
                 (car_name, car_brand, car_price, 0)
                 )
             db_connect.commit()
-            return redirect(url_for('car_board_seller'))
+            return redirect(url_for('car_board'))
 
         flash(error)
 
     return render_template('add_car.html')
 
-@app.route('/car_board/vendeur')
+#We created one car_board in common for all the users, as the function
+#would work the same for every user's role
+@app.route('/car_board')
 @login_required
-def car_board_seller():
+def car_board():
     db_cars = db.get_db()
     cars_data = db_cars.execute(
         'SELECT * FROM pycar_cars'
     ).fetchall()
 
-    return render_template('car_board_seller.html', cars = cars_data)
-
-@app.route('/car_board/mecanicien')
-@login_required
-def car_board_mechanic():
-    db_cars = db.get_db()
-    cars_data = db_cars.execute(
-        'SELECT * FROM pycar_cars'
-    ).fetchall()
-
-    return render_template('car_board_mechanic.html', cars = cars_data)
+    return render_template('car_board.html', cars = cars_data)
 
 @app.route('/modify_car/<id_car>', methods=['POST', 'GET'])
 def car_modification(id_car=None):
@@ -263,18 +280,17 @@ def car_modification(id_car=None):
             db_cars.commit()
             flash('Modification effectuée')
 
+    #We get all the informations about the car with the id in link
     car_selected = db_cars.execute(
         'SELECT * FROM pycar_cars WHERE id = ?',
         (id_car,)
     ).fetchone()
 
-
-
     #If we don't find the car with the given id
     if car_selected is None:
         error = 'La voiture que vous voulez modifier n\'existe pas !'
         flash(error)
-        return redirect(url_for('car_board_seller'))
+        return redirect(url_for('car_board'))
     
     return render_template('modify_car.html', cars=car_selected)
 
@@ -299,33 +315,51 @@ def car_delete(id_car):
         )
         db_cars.commit()
         flash("La voiture a bien été supprimé")
-
     
-    return redirect(url_for('car_board_seller'))   
+    return redirect(url_for('car_board'))   
 
+#Creation of a car_sheet for a vehicle
 @app.route('/car_create_sheet/<id_car>', methods=['POST', 'GET'])
 @login_required
 def car_create_sheet(id_car):
     error = None
+    file_content = None
     db_cars = db.get_db()
+
+    #We want to show what has been written previously in the car_sheet
+    cars_data = db_cars.execute(
+        'SELECT car_name FROM pycar_cars WHERE id = ?',
+        (id_car,)
+    ).fetchone()
+
+    #If the car has not been found, we can't read his file, we add an error 
+    #And flash it after redirection 
+    if cars_data is None:
+        error = 'La voiture d\'id '+id_car+' n\'existe pas !'
+        flash(error)
+        return redirect(url_for('car_board'))
+    
+    if os.path.isdir('car_sheets') == False:
+        os.mkdir('car_sheets')
+    if os.path.isfile("car_sheets/"+cars_data['car_name']+"-"+id_car+".txt"):
+        with open("car_sheets/"+cars_data['car_name']+"-"+id_car+".txt", "r+") as car_sheet_file:
+            file_content = car_sheet_file.read()
+
+
     if request.method == 'POST':
         sheet_content = request.form['sheet_content']
-        cars_data = db_cars.execute(
-            'SELECT * FROM pycar_cars WHERE id = ?',
-            (id_car,)
-        ).fetchone()
 
-        if cars_data is None:
-            error = 'La voiture d\'id '+id_car+' n\'existe pas !'
-        else:
-            with open(cars_data['car_name']+"-"+id_car+".txt", "a") as fichier:
-                fichier.write(sheet_content)
+        with open("car_sheets/"+cars_data['car_name']+"-"+id_car+".txt", "a") as car_sheet_file:
+            car_sheet_file.write(sheet_content)
 
         if not sheet_content:
             error = 'La fiche technique ne peut pas être vide !'
 
-    return render_template('sheet_creation.html', id_car = id_car)
+        if error is not None:
+            flash(error)
+            return redirect(url_for('car_board'))
 
+    return render_template('sheet_creation.html', id_car = id_car, file_content = file_content)
 
 #Customisation of 404 page
 @app.errorhandler(404)

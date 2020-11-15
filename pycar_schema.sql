@@ -13,3 +13,4 @@ CREATE TABLE IF NOT EXISTS pycar_cars(
     car_price REAL NOT NULL,
     to_repair INTEGER NOT NULL 
 );
+

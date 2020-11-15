@@ -21,14 +21,18 @@
     
     <p> Bienvenue ! {{session.username}} vous êtes un {{session.role}}</p>
 
-    {% if session.role != 'mecanicien' %}
-      <a href={{url_for('car_board_seller')}}>Tableau de bord</a>
+    <p>Menu de navigation</p>
+
+    <ul>
+    {% if session.role == 'administrateur' %}
+      <li><a href={{url_for('register')}}>Ajouter un nouvel utilisateur</a></li><br>
     {% endif %}
-    {% if session.role != 'vendeur' %}
-      <a href={{url_for('car_board_mechanic')}}>Maintenance véhicules</a>
-    {% endif %}
+      
+      <li><a href="{{url_for('car_board')}}">Tableau de bord</a></li><br>
+      <li><a href={{url_for('page_profil')}}>Profil</a></li>
+    </ul>
     
-    <a href={{url_for('page_profil')}}>Profil</a>
+    
 
 
   

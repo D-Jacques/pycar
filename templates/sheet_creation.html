@@ -9,11 +9,14 @@
     
     <h1>Fiche technique de véhicule</h1>
 
-    <form action={{url_for('car_create_sheet', id_car = id_car)}} method="POST">
-        <textarea name="sheet_content" id="sheet_content" cols="30" rows="10"></textarea>
+    <form action="{{url_for('car_create_sheet', id_car = id_car)}}" method="POST">
+        <textarea name="sheet_content" id="sheet_content" cols="30" rows="10">{% if file_content != None %}{{file_content}}{% endif %}
+        </textarea>
 
         <button>Créer</button>
     </form>
         
+    <a href="{{url_for('car_board')}}">Tableau de bord</a>
+
 </body>
 </html>

@@ -17,7 +17,7 @@
 
     <h1>Modification d'un véhicule</h1>
 
-    <form action={{url_for('car_modification', id_car=cars.id)}} method="POST">
+    <form action="{{url_for('car_modification', id_car=cars.id)}}" method="POST">
         <label for="car_name">Modèle de véhicule : </label>
         <input type="text" name="car_name" id="car_name" value={{cars.car_name}} placeholder="Entrez le nom du modèle du véhicule"><br/>
         <label for="car_brand">Contructeur de véhicule : </label>
@@ -28,6 +28,6 @@
         <button type="submit">Modifier</button>
     </form>
 
-    <a href={{url_for('car_board_seller')}}>Liste des véhicules en vente</a>
+    <a href="{{url_for('car_board')}}">Liste des véhicules en vente</a>
 </body>
 </html>
