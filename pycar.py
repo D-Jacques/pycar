@@ -130,7 +130,7 @@ def page_profil():
 @app.route('/change_mail',  methods=['POST', 'GET'])
 @login_required
 def change_mail():
-    db_mail = db.get_db()
+    db_user = db.get_db()
     error = None
 
     user_datas = db_user.execute(
@@ -169,7 +169,7 @@ def change_mail():
 @app.route('/change_password',  methods=['POST', 'GET'])
 @login_required
 def change_password():
-    db_password = db.get_db()
+    db_user = db.get_db()
     error = None
 
     if request.method == 'POST':
@@ -196,20 +196,12 @@ def change_password():
             flash(error)
         
         if error is None:
-<<<<<<< HEAD
             db_user.execute(
-=======
-            db_password.execute(
->>>>>>> a7289aeb841fe08e74f4505ca4aac972124d6b67
                 'UPDATE pycar_user SET user_password = ?',
                 (generate_password_hash(new_password_user),)
                 )
-<<<<<<< HEAD
             db_user.commit()
             flash('Votre mot de passe à été modifiée avec succès !')
-=======
-            db_password.commit()
->>>>>>> a7289aeb841fe08e74f4505ca4aac972124d6b67
             return redirect(url_for('page_profil'))
 
     return render_template('password_change.html')
