@@ -9,13 +9,18 @@ from flask import(
 )
 from markupsafe import escape
 from werkzeug.security import check_password_hash, generate_password_hash
-from pprint import pprint
 
 app = Flask(__name__)
 app.config.from_mapping(
     SECRET_KEY = 'dev',
     DATABASE = os.path.join(app.instance_path, 'pycar.db')
 )
+
+# Creation of the instance directory so as to store the database file
+try:
+    os.makedirs(app.instance_path)
+except OSError:
+    pass
 
 #We have to declare this function in our main file so as to enable
 #The flask init-db command that will initialise the database
@@ -52,6 +57,12 @@ def register():
             error = 'Vous devez définir un mot de passe pour cet utilisateur !'
         elif not email:
             error = 'Vous devez renseigner un email pour cet utilisateur !'
+        elif len(username) < 4:
+            error = 'le nom d\'utilisateur est trop court (minimum 4 lettres)'
+        elif len(password) < 4:
+            error = 'le mot de passe est trop court (minimum 4 caractères)'
+        elif len(email) < 5:
+            error = 'l\'adresse mail est trop courte (minimum 5 caractères)'
         #We execute the query, if it found something, it means a user already 
         #took the username
         elif db_connect.execute(
@@ -155,6 +166,8 @@ def change_mail():
             error = "Vous devez rentrer votre nouvelle adresse mail"
         elif new_mail_user != new_mail_check:
             error = "Vous devez rentrer la même adresse mail dans les deux derniers champs"
+        elif len(new_mail_user) < 5:
+            error = 'l\'adresse mail est trop courte (minimum 5 caractères)'
         elif db_user.execute(
             'SELECT * FROM pycar_user WHERE user_mail = ?',
             (new_mail_user,)
@@ -201,6 +214,8 @@ def change_password():
             error = "Veuillez rentrer votre nouveau mot de passe"
         elif new_password_user != new_password_check:
             error = "Vous devez rentrer le même mot de passe dans les deux dernier champs"
+        elif len(new_password_user) < 4:
+            error = 'le mot de passe est trop court (minimum 4 caractères)'
 
         if error is not None:
             flash(error)

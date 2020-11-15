@@ -5,6 +5,7 @@ database and our programm'''
 import sqlite3
 
 import click
+import os
 from flask import current_app, g
 from flask.cli import with_appcontext
 from werkzeug.security import check_password_hash, generate_password_hash
