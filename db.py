@@ -63,7 +63,7 @@ def init_db():
 @with_appcontext
 def init_db_command():
     init_db()
-    click.echo('The database pycar has been created')
+    click.echo('Base de données initialisée')
 
 #So as the application use these functions, we have to declare them
 def init_app(app):

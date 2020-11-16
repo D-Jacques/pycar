@@ -13,4 +13,9 @@ Dans cette application :
 	- Les vendeurs peuvent créer les véhicules a mettre en vente, modifier les véhicules mis 
 	en vente et il peut les retirer.
 	-Chaque utilisateur peut modifier son adresse mail et son mot de passe.
+
+règles: 
+	-Les mots de passes et les nom d'utilisateurs doivent faire au moins 4 caractères de 	 long.
+	-Les mails doivent faire 10 caractères de long.
+	-Les fiches techniques et les informations sur les véhicules (ajout, modification) ne 	  peuvent pas être vides.
 	-Chaque nom d'utilisateurs et adresse mail doit rester unique.

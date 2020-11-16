@@ -50,19 +50,14 @@ def register():
         db_connect = db.get_db()
         error = None
         
-        #The condition wall, if one value is empty, you shall not register
-        if not username:
-            error = 'Vous devez inscrire un nom d\'utilisateur !'
-        elif not password:
-            error = 'Vous devez définir un mot de passe pour cet utilisateur !'
-        elif not email:
-            error = 'Vous devez renseigner un email pour cet utilisateur !'
-        elif len(username) < 4:
-            error = 'le nom d\'utilisateur est trop court (minimum 4 lettres)'
-        elif len(password) < 4:
-            error = 'le mot de passe est trop court (minimum 4 caractères)'
-        elif len(email) < 5:
-            error = 'l\'adresse mail est trop courte (minimum 5 caractères)'
+        #The condition wall, if one value is empty or too short
+        #you shall not register
+        if not username or len(username) < 4:
+            error = 'Vous devez inscrire un nom d\'utilisateur d\'au moins 4 caractères!'
+        elif not password or len(password) < 4:
+            error = 'Vous devez définir un mot de passe pour cet utilisateur d\'au moins 4 caractères!'
+        elif not email or len(email) < 10:
+            error = 'Vous devez renseigner un email pour cet utilisateur (minimum 10 caractères) !'
         #We execute the query, if it found something, it means a user already 
         #took the username
         elif db_connect.execute(
@@ -79,7 +74,7 @@ def register():
                 (username,generate_password_hash(password), email, role)
             )
             db_connect.commit()
-            flash('Le compte est désormais inscri, l\'utilisateur peut se connecter avec ce compte')
+            flash('Le compte est désormais inscrit, l\'utilisateur peut se connecter avec ce compte')
         else:
             flash(error)
 
@@ -98,6 +93,7 @@ def connection():
             'SELECT * FROM pycar_user WHERE username = ?',
             (username,)
         ).fetchone()
+
         if checkUser is None:
             error = 'Erreur : le nom d\'utilisateur renseigné n\'existe pas !'
         elif not check_password_hash(checkUser['user_password'], password):
@@ -137,8 +133,6 @@ def page_profil():
         (session['id'],)
     ).fetchone()
 
-    print(user_datas)
-
     return render_template('page_profil.html', user = user_datas)
 
 @app.route('/change_mail',  methods=['POST', 'GET'])
@@ -162,12 +156,10 @@ def change_mail():
         
         if mail_user == new_mail_user:
             error = "La nouvelle adresse mail ne peut pas être la même que l'ancienne"
-        elif not new_mail_user:
-            error = "Vous devez rentrer votre nouvelle adresse mail"
+        elif not new_mail_user or len(new_mail_user) < 10:
+            error = "Vous devez rentrer votre nouvelle adresse mail (minimum 10 caractères)"
         elif new_mail_user != new_mail_check:
             error = "Vous devez rentrer la même adresse mail dans les deux derniers champs"
-        elif len(new_mail_user) < 5:
-            error = 'l\'adresse mail est trop courte (minimum 5 caractères)'
         elif db_user.execute(
             'SELECT * FROM pycar_user WHERE user_mail = ?',
             (new_mail_user,)
@@ -176,7 +168,7 @@ def change_mail():
 
         if error is not None:
             flash(error)
-        if error is None:
+        else:
             flash(new_mail_user)
             db_user.execute(
                 'UPDATE pycar_user SET user_mail = ?'
@@ -189,6 +181,9 @@ def change_mail():
     
     return render_template('mail_change.html', user = user_datas)
 
+#Route that leads to the change password function
+#if a form is sent, we get the user current password to check if the password
+#sent is the same as the current one
 @app.route('/change_password',  methods=['POST', 'GET'])
 @login_required
 def change_password():
@@ -210,17 +205,14 @@ def change_password():
 
         if password_user == new_password_user:
             error = "Le nouveau mot de passe ne peut pas être le même que l'ancien"
-        elif not new_password_user:
-            error = "Veuillez rentrer votre nouveau mot de passe"
+        elif not new_password_user or len(new_password_user) < 4:
+            error = "Veuillez rentrer votre nouveau mot de passe (minimum 4 caractères)"
         elif new_password_user != new_password_check:
             error = "Vous devez rentrer le même mot de passe dans les deux dernier champs"
-        elif len(new_password_user) < 4:
-            error = 'le mot de passe est trop court (minimum 4 caractères)'
 
         if error is not None:
             flash(error)
-        
-        if error is None:
+        else:
             db_user.execute(
                 'UPDATE pycar_user SET user_password = ?'
                 'WHERE id = ?',
@@ -236,7 +228,6 @@ def change_password():
 @app.route('/add_car', methods=('GET','POST'))
 @login_required
 def car_add():
-    
     db_connect = db.get_db()
     error = None    
     
@@ -366,25 +357,29 @@ def car_create_sheet(id_car):
         return redirect(url_for('car_board'))
     
     #If the directory car_sheets does not exists, we create it
-    if os.path.isdir('car_sheets') == False:
-        os.mkdir('car_sheets')
+    # if os.path.isdir('car_sheets') == False:
+    #     os.mkdir('car_sheets')
+    try:
+        os.makedirs('car_sheets')
+    except OSError:
+        pass
+
     #We read the file to print it in the textarea's view if the user wants to
     #Complete it
     if os.path.isfile("car_sheets/"+cars_data['car_name']+"-"+id_car+".txt"):
         with open("car_sheets/"+cars_data['car_name']+"-"+id_car+".txt", "r+") as car_sheet_file:
             file_content = car_sheet_file.read()
 
-
     if request.method == 'POST':
         sheet_content = request.form['sheet_content']
+
+        if not sheet_content:
+            error = 'La fiche technique ne peut pas être vide !'
 
         #We overwrite the last car_sheet file with the new content if the file
         #does not exists it's created
         with open("car_sheets/"+cars_data['car_name']+"-"+id_car+".txt", "w") as car_sheet_file:
             car_sheet_file.write(sheet_content)
-
-        if not sheet_content:
-            error = 'La fiche technique ne peut pas être vide !'
 
         if error is not None:
             flash(error)

@@ -13,13 +13,13 @@
     {% endif %}
   {% endwith %}
 
-  <form method="POST" action={{url_for('register')}}>
+  <form method="POST" action="{{url_for('register')}}">
     <label for="username">Nom d'utilisateur :</label>
     <input type="text" name="username" id="username"/> <br>
     <label for="password">Mot de passe:</label>
     <input type="password" name="password" id="password"/> <br>
     <label for="email">Adresse mail:</label>
-    <input type="text" name="email" id="email"/> <br>
+    <input type="email" name="email" id="email"/> <br>
     <label for="role">rôle:</label>
     <select name="role" id="role">
       <option value="administrateur">administrateur</option>
@@ -30,7 +30,7 @@
     <button type="submit">valider</button><br>
 
     <p>
-      <a href={{url_for('index')}}>Retour vers l'index</a>
+      <a href="{{url_for('index')}}">Retour vers l'index</a>
     </p>
 
   </form>
