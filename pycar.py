@@ -107,7 +107,7 @@ def connection():
         
         flash(error)
     return render_template('connection.html')
-
+#We logout the user
 @app.route('/logout')
 @login_required
 def logout():
@@ -135,6 +135,7 @@ def page_profil():
 
     return render_template('page_profil.html', user = user_datas)
 
+#function we use to change a current mail with a new one
 @app.route('/change_mail',  methods=['POST', 'GET'])
 @login_required
 def change_mail():
@@ -181,7 +182,7 @@ def change_mail():
     
     return render_template('mail_change.html', user = user_datas)
 
-#Route that leads to the change password function
+#function we use to change a current password with a new one
 #if a form is sent, we get the user current password to check if the password
 #sent is the same as the current one
 @app.route('/change_password',  methods=['POST', 'GET'])
