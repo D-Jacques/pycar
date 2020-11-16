@@ -1,3 +1,9 @@
+'''
+    This is the main file of our pycar project
+    this file contain the main function that create users, cars and you can
+    also modify cars and users informations, and you can delete cars
+'''
+
 import os
 import db
 import functools
