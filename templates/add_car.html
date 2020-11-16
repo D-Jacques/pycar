@@ -17,7 +17,7 @@
 
     <h1>Ajout d'un véhicule</h1>
 
-    <form action={{url_for('car_add')}} method="POST">
+    <form action="{{url_for('car_add')}}" method="POST">
         <label for="car_name">Modèle de véhicule : </label>
         <input type="text" name="car_name" id="car_name" placeholder="Entrez le nom du modèle du véhicule"><br/>
         <label for="car_brand">Contructeur de véhicule : </label>
@@ -28,6 +28,6 @@
         <button type="submit">Ajouter</button>
     </form>
 
-    <a href={{url_for('car_board_seller')}}>Tableau de bord</a>
+    <a href="{{url_for('car_board')}}">Tableau de bord</a>
 </body>
 </html>

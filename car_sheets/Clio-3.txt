@@ -1,4 +1,0 @@
-Modèle : clio
-Constructeur : Renault
-Date sortie d'usine : 2018
-Carburant : Diesel

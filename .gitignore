@@ -128,5 +128,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+<<<<<<< HEAD
 .car_sheets/
 
+=======
+
+#Car sheet directory
+car_sheets/
+>>>>>>> f10a90390be1463eca0a5023b4060e561efb65f5

@@ -15,7 +15,7 @@
     {% endif %}
   {% endwith %}
 
-  <form method="POST" action={{url_for('connection')}}>
+  <form method="POST" action="{{url_for('connection')}}">
     <label for="username">username</label>
     <input type="text" name="username" id="username"/> <br>
     <label for="password">password</label>
@@ -25,5 +25,4 @@
   
   </form>
 
-  <a href="{{url_for('register')}}">lien temporaire vers page de connection</a>
 </body>
