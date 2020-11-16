@@ -170,7 +170,6 @@ def change_mail():
         if error is not None:
             flash(error)
         else:
-            flash(new_mail_user)
             db_user.execute(
                 'UPDATE pycar_user SET user_mail = ?'
                 ' WHERE id = ?',
@@ -358,8 +357,6 @@ def car_create_sheet(id_car):
         return redirect(url_for('car_board'))
     
     #If the directory car_sheets does not exists, we create it
-    # if os.path.isdir('car_sheets') == False:
-    #     os.mkdir('car_sheets')
     try:
         os.makedirs('car_sheets')
     except OSError:
